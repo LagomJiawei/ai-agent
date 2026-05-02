@@ -21,6 +21,10 @@
         <lombok.version>1.18.36</lombok.version>
         <hutool.version>5.8.37</hutool.version>
         <knife4j.version>4.5.0</knife4j.version>
+        <dashscope.version>2.22.17</dashscope.version>
+        <spring-ai-alibaba.version>1.0.0-M6.1</spring-ai-alibaba.version>
+        <langchain4j.version>1.13.1-beta23</langchain4j.version>
+        <spring-ai-ollama.version>1.0.0-M6</spring-ai-ollama.version>
     </properties>
 
     <dependencies>
@@ -59,6 +63,34 @@
             <version>${knife4j.version}</version>
         </dependency>
 
+        <!-- SDK接入LLM-->
+<!--        <dependency>-->
+<!--            <groupId>com.alibaba</groupId>-->
+<!--            <artifactId>dashscope-sdk-java</artifactId>-->
+<!--            <version>${dashscope.version}</version>-->
+<!--            <scope>compile</scope>-->
+<!--        </dependency>-->
+
+        <!--Spring AI Alibaba接入LLM-->
+        <dependency>
+            <groupId>com.alibaba.cloud.ai</groupId>
+            <artifactId>spring-ai-alibaba-starter</artifactId>
+            <version>${spring-ai-alibaba.version}</version>
+        </dependency>
+
+        <!--langchain4j接入LLM-->
+<!--        <dependency>-->
+<!--            <groupId>dev.langchain4j</groupId>-->
+<!--            <artifactId>langchain4j-community-dashscope</artifactId>-->
+<!--            <version>${langchain4j.version}</version>-->
+<!--        </dependency>-->
+
+        <!--项目中接入本地部署的LLM-->
+<!--        <dependency>-->
+<!--            <groupId>org.springframework.ai</groupId>-->
+<!--            <artifactId>spring-ai-ollama-spring-boot-starter</artifactId>-->
+<!--            <version>${spring-ai-ollama.version}</version>-->
+<!--        </dependency>-->
 
     </dependencies>
 
