@@ -25,6 +25,9 @@
         <spring-ai-alibaba.version>1.0.0-M6.1</spring-ai-alibaba.version>
         <langchain4j.version>1.13.1-beta23</langchain4j.version>
         <spring-ai-ollama.version>1.0.0-M6</spring-ai-ollama.version>
+        <jsonschema.version>4.38.0</jsonschema.version>
+        <kryo.version>5.6.2</kryo.version>
+        <sensitive-word.version>0.11.0</sensitive-word.version>
     </properties>
 
     <dependencies>
@@ -63,7 +66,7 @@
             <version>${knife4j.version}</version>
         </dependency>
 
-        <!-- SDK接入LLM-->
+        <!-- SDK接入LLM -->
 <!--        <dependency>-->
 <!--            <groupId>com.alibaba</groupId>-->
 <!--            <artifactId>dashscope-sdk-java</artifactId>-->
@@ -71,26 +74,47 @@
 <!--            <scope>compile</scope>-->
 <!--        </dependency>-->
 
-        <!--Spring AI Alibaba接入LLM-->
+        <!-- Spring AI Alibaba接入LLM -->
         <dependency>
             <groupId>com.alibaba.cloud.ai</groupId>
             <artifactId>spring-ai-alibaba-starter</artifactId>
             <version>${spring-ai-alibaba.version}</version>
         </dependency>
 
-        <!--langchain4j接入LLM-->
+        <!-- langchain4j接入LLM -->
 <!--        <dependency>-->
 <!--            <groupId>dev.langchain4j</groupId>-->
 <!--            <artifactId>langchain4j-community-dashscope</artifactId>-->
 <!--            <version>${langchain4j.version}</version>-->
 <!--        </dependency>-->
 
-        <!--项目中接入本地部署的LLM-->
+        <!-- 项目中接入本地部署的LLM -->
 <!--        <dependency>-->
 <!--            <groupId>org.springframework.ai</groupId>-->
 <!--            <artifactId>spring-ai-ollama-spring-boot-starter</artifactId>-->
 <!--            <version>${spring-ai-ollama.version}</version>-->
 <!--        </dependency>-->
+
+        <!-- 支持结构化输出 -->
+        <dependency>
+            <groupId>com.github.victools</groupId>
+            <artifactId>jsonschema-generator</artifactId>
+            <version>${jsonschema.version}</version>
+        </dependency>
+
+        <!-- 高性能序列化库：支持基于文件读写的序列化/反序列化 -->
+        <dependency>
+            <groupId>com.esotericsoftware</groupId>
+            <artifactId>kryo</artifactId>
+            <version>${kryo.version}</version>
+        </dependency>
+
+        <!-- DFA敏感词过滤工具 -->
+        <dependency>
+            <groupId>com.github.houbb</groupId>
+            <artifactId>sensitive-word</artifactId>
+            <version>${sensitive-word.version}</version>
+        </dependency>
 
     </dependencies>
 
@@ -119,6 +143,14 @@
                             <version>${lombok.version}</version>
                         </path>
                     </annotationProcessorPaths>
+                </configuration>
+            </plugin>
+
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-surefire-plugin</artifactId>
+                <configuration>
+                    <argLine>-XX:+EnableDynamicAgentLoading</argLine>
                 </configuration>
             </plugin>
         </plugins>

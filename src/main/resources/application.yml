@@ -2,8 +2,9 @@ spring:
   application:
     name: ai-agent
   ai:
+    # 阿里云-灵积模型服务 （与阿里云百炼的区别：必须通过底层编程去调用LLM）
     dashscope:
-      api-key: 
+      api-key: sk-ade41a7b0ffe487ba75689374e06d03a
       chat:
         options:
           model: qwen-plus
@@ -32,3 +33,23 @@ knife4j:
   enable: true
   setting:
     language: zh_cn
+
+# 自定义敏感词配置
+app:
+  sensitive:
+    # 敏感词库
+    words:
+      - 暴力
+      - 色情
+      - 赌博
+      - 毒品
+      - 恐怖主义
+      - 违法
+      - 犯罪
+      - 反动
+      - 邪教
+      - 分裂
+    # 是否启用敏感词检查
+    enabled: true
+    # 处理策略：BLOCK(拦截) / REPLACE(替换)
+    strategy: BLOCK
