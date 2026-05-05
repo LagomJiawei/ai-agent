@@ -3,7 +3,7 @@ spring:
     name: ai-agent
   ai:
     # 阿里云-灵积模型服务 （与阿里云百炼的区别：必须通过底层编程去调用LLM）
-    dashscope:
+    dashScope:
       api-key: sk-ade41a7b0ffe487ba75689374e06d03a
       chat:
         options:
