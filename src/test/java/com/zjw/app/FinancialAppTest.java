@@ -34,7 +34,7 @@ public class FinancialAppTest {
         Assertions.assertNotNull(answer);
 
         // 第三轮
-        message = "给我推荐一个最具性价比的理财组合";
+        message = "给我推荐一个最具性价比理财组合";
         answer = financialApp.doChat(message, chatId);
         Assertions.assertNotNull(answer);
     }
@@ -45,7 +45,7 @@ public class FinancialAppTest {
     @Test
     void testChatWithReport() {
         String chatId = UUID.randomUUID().toString();
-        String message = "你好，我是张三。给我推荐一个最具性价比的理财组合";
+        String message = "你好，我是张三。给我推荐一个最具性价比理财组合";
         FinancialApp.PsychologyReport psychologyReport = financialApp.doChatWithReport(message, chatId);
         Assertions.assertNotNull(psychologyReport);
     }

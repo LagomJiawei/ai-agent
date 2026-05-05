@@ -9,13 +9,13 @@ import com.zjw.config.CustomWordDeny;
 import com.zjw.config.SensitiveWordConfig;
 import jakarta.annotation.PostConstruct;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.ai.chat.client.advisor.api.AdvisedRequest;
-import org.springframework.ai.chat.client.advisor.api.AdvisedResponse;
-import org.springframework.ai.chat.client.advisor.api.CallAroundAdvisor;
-import org.springframework.ai.chat.client.advisor.api.CallAroundAdvisorChain;
-import org.springframework.ai.chat.client.advisor.api.StreamAroundAdvisor;
-import org.springframework.ai.chat.client.advisor.api.StreamAroundAdvisorChain;
-import org.springframework.ai.chat.model.MessageAggregator;
+import org.springframework.ai.chat.client.ChatClientMessageAggregator;
+import org.springframework.ai.chat.client.ChatClientRequest;
+import org.springframework.ai.chat.client.ChatClientResponse;
+import org.springframework.ai.chat.client.advisor.api.CallAdvisor;
+import org.springframework.ai.chat.client.advisor.api.CallAdvisorChain;
+import org.springframework.ai.chat.client.advisor.api.StreamAdvisor;
+import org.springframework.ai.chat.client.advisor.api.StreamAdvisorChain;
 import reactor.core.publisher.Flux;
 
 import java.util.List;
@@ -28,7 +28,7 @@ import java.util.List;
  * @date 2026年05月04日 14:02
  */
 @Slf4j
-public class SensitiveWordAdvisor implements CallAroundAdvisor, StreamAroundAdvisor {
+public class SensitiveWordAdvisor implements CallAdvisor, StreamAdvisor {
 
     private static final String DEFAULT_REPLACEMENT = "***";
     private static final String STRATEGY_BLOCK = "BLOCK";
@@ -92,12 +92,12 @@ public class SensitiveWordAdvisor implements CallAroundAdvisor, StreamAroundAdvi
         return -1;
     }
 
-    private AdvisedRequest before(AdvisedRequest request) {
+    private ChatClientRequest before(ChatClientRequest request) {
         if (!sensitiveWordConfig.isEnabled()) {
             return request;
         }
 
-        String userText = request.userText();
+        String userText = request.prompt().getUserMessage().getText();
         if (!this.hasSensitiveWord(userText)) {
             log.debug("敏感词校验通过");
             return request;
@@ -111,7 +111,9 @@ public class SensitiveWordAdvisor implements CallAroundAdvisor, StreamAroundAdvi
             case STRATEGY_REPLACE -> {
                 String cleanText = this.replaceSensitiveWords(userText);
                 log.info("已将敏感词替换为 {}，原文: {}, 处理后: {}", DEFAULT_REPLACEMENT, userText, cleanText);
-                yield AdvisedRequest.from(request).userText(cleanText).build();
+                yield request.mutate()
+                        .prompt(request.prompt().augmentUserMessage(cleanText))
+                        .build();
             }
             default -> {
                 log.error("未知的处理策略: {}，默认采用拦截策略", sensitiveWordConfig.getStrategy());
@@ -123,27 +125,26 @@ public class SensitiveWordAdvisor implements CallAroundAdvisor, StreamAroundAdvi
     /**
      * 处理同步（非流式）请求/响应
      *
-     * @param advisedRequest
+     * @param request
      * @param chain
      * @return
      */
     @Override
-    public AdvisedResponse aroundCall(AdvisedRequest advisedRequest, CallAroundAdvisorChain chain) {
-        return chain.nextAroundCall(before(advisedRequest));
+    public ChatClientResponse adviseCall(ChatClientRequest request, CallAdvisorChain chain) {
+        return chain.nextCall(this.before(request));
     }
 
     /**
      * 处理流式请求/响应
      *
-     * @param advisedRequest
+     * @param request
      * @param chain
      * @return
      */
     @Override
-    public Flux<AdvisedResponse> aroundStream(AdvisedRequest advisedRequest, StreamAroundAdvisorChain chain) {
-        AdvisedRequest processed = before(advisedRequest);
-        Flux<AdvisedResponse> responses = chain.nextAroundStream(processed);
-        return new MessageAggregator().aggregateAdvisedResponse(responses, response ->
+    public Flux<ChatClientResponse> adviseStream(ChatClientRequest request, StreamAdvisorChain chain) {
+        Flux<ChatClientResponse> responses = chain.nextStream(this.before(request));
+        return new ChatClientMessageAggregator().aggregateChatClientResponse(responses, response ->
                 log.debug("流式响应完成")
         );
     }

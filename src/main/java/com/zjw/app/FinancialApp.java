@@ -8,6 +8,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.ai.chat.client.ChatClient;
 import org.springframework.ai.chat.client.advisor.MessageChatMemoryAdvisor;
 import org.springframework.ai.chat.client.advisor.api.Advisor;
+import org.springframework.ai.chat.client.advisor.vectorstore.QuestionAnswerAdvisor;
 import org.springframework.ai.chat.memory.ChatMemory;
 import org.springframework.ai.chat.model.ChatModel;
 import org.springframework.ai.chat.model.ChatResponse;
@@ -42,7 +43,7 @@ public class FinancialApp {
         chatClient = ChatClient.builder(dashscopeChatModel)
                 .defaultSystem(SYSTEM_PROMPT)
                 .defaultAdvisors(
-                        new MessageChatMemoryAdvisor(chatMemory),
+                        MessageChatMemoryAdvisor.builder(chatMemory).build(),
                         // 自定义敏感词 Advisor
                         sensitiveWordAdvisor
 //                        // 自定义日志 Advisor
@@ -65,8 +66,8 @@ public class FinancialApp {
                 .prompt()
                 .user(message)
                 // 对话时动态设置Advisor的参数，如：对话记忆的ID 和 大小
-                .advisors(spec -> spec.param(MessageChatMemoryAdvisor.CHAT_MEMORY_CONVERSATION_ID_KEY, chatId)
-                        .param(MessageChatMemoryAdvisor.CHAT_MEMORY_RETRIEVE_SIZE_KEY, 10))
+                .advisors(spec -> spec.param("chat_memory_conversation_id", chatId)
+                        .param("chat_memory_retrieve_size", 10))
                 .call()
                 .chatResponse();
         String content = response.getResult().getOutput().getText();
@@ -96,7 +97,7 @@ public class FinancialApp {
                 .prompt()
                 .system(SYSTEM_PROMPT + "每次对话后都要生成理财结果，标题为{用户名}的理财报告，内容为建议列表")
                 .user(message)
-                .advisors(spec -> spec.param(MessageChatMemoryAdvisor.CHAT_MEMORY_CONVERSATION_ID_KEY, chatId))
+                .advisors(spec -> spec.param("chat_memory_conversation_id", chatId))
                 .call()
                 .entity(PsychologyReport.class);
         log.info("psychologyReport: {}", psychologyReport);
@@ -120,12 +121,12 @@ public class FinancialApp {
         ChatResponse chatResponse = chatClient
                 .prompt()
                 .user(message)
-                .advisors(spec -> spec.param(MessageChatMemoryAdvisor.CHAT_MEMORY_CONVERSATION_ID_KEY, chatId)
-                        .param(MessageChatMemoryAdvisor.CHAT_MEMORY_RETRIEVE_SIZE_KEY, 10))
+                .advisors(spec -> spec.param("chat_memory_conversation_id", chatId)
+                        .param("chat_memory_retrieve_size", 10))
                 // 开启日志
                 .advisors(new MyLoggerAdvisor())
                 // 类型1：开启QuestionAnswerAdvisor 这种 RAG 知识库（更简单）
-//                .advisors(new QuestionAnswerAdvisor(financialAppVectorStore))
+                .advisors(QuestionAnswerAdvisor.builder(financialAppVectorStore).build())
                 // 类型2：开启 RetrievalAugmentationAdvisor 这种 RAG 知识库（更灵活）
 //                .advisors(financialAppCloudAdvisor)
                 .call()

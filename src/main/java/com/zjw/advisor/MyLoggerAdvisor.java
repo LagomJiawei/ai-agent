@@ -1,13 +1,13 @@
 package com.zjw.advisor;
 
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.ai.chat.client.advisor.api.AdvisedRequest;
-import org.springframework.ai.chat.client.advisor.api.AdvisedResponse;
-import org.springframework.ai.chat.client.advisor.api.CallAroundAdvisor;
-import org.springframework.ai.chat.client.advisor.api.CallAroundAdvisorChain;
-import org.springframework.ai.chat.client.advisor.api.StreamAroundAdvisor;
-import org.springframework.ai.chat.client.advisor.api.StreamAroundAdvisorChain;
-import org.springframework.ai.chat.model.MessageAggregator;
+import org.springframework.ai.chat.client.ChatClientMessageAggregator;
+import org.springframework.ai.chat.client.ChatClientRequest;
+import org.springframework.ai.chat.client.ChatClientResponse;
+import org.springframework.ai.chat.client.advisor.api.CallAdvisor;
+import org.springframework.ai.chat.client.advisor.api.CallAdvisorChain;
+import org.springframework.ai.chat.client.advisor.api.StreamAdvisor;
+import org.springframework.ai.chat.client.advisor.api.StreamAdvisorChain;
 import reactor.core.publisher.Flux;
 
 /**
@@ -18,7 +18,7 @@ import reactor.core.publisher.Flux;
  * @date 2026年05月03日 13:20
  */
 @Slf4j
-public class MyLoggerAdvisor implements CallAroundAdvisor, StreamAroundAdvisor {
+public class MyLoggerAdvisor implements CallAdvisor, StreamAdvisor {
 
     /**
      * 拦截器名称（唯一）
@@ -40,44 +40,48 @@ public class MyLoggerAdvisor implements CallAroundAdvisor, StreamAroundAdvisor {
         return 0;
     }
 
-    private AdvisedRequest before(AdvisedRequest request) {
-        log.info("AI Request: {}", request.userText());
+    private ChatClientRequest before(ChatClientRequest request) {
+        log.info("AI Request: {}", request.prompt().getUserMessage().getText());
         return request;
     }
 
-    private void observeAfter(AdvisedResponse advisedResponse) {
-        log.info("AI Response: {}", advisedResponse.response().getResult().getOutput().getText());
+    private void observeAfter(ChatClientResponse response) {
+        if (response != null && response.chatResponse() != null
+                && response.chatResponse().getResult() != null
+                && response.chatResponse().getResult().getOutput() != null) {
+            log.info("AI Response: {}", response.chatResponse().getResult().getOutput().getText());
+        }
     }
 
     /**
      * 处理同步（非流式）请求/响应
      *
-     * @param advisedRequest
+     * @param request
      * @param chain
      * @return
      */
     @Override
-    public AdvisedResponse aroundCall(AdvisedRequest advisedRequest, CallAroundAdvisorChain chain) {
-        advisedRequest = this.before(advisedRequest);
+    public ChatClientResponse adviseCall(ChatClientRequest request, CallAdvisorChain chain) {
+        request = this.before(request);
         // 继续执行AdvisorChain中的下一个拦截器
-        AdvisedResponse advisedResponse = chain.nextAroundCall(advisedRequest);
-        this.observeAfter(advisedResponse);
-        return advisedResponse;
+        ChatClientResponse response = chain.nextCall(request);
+        this.observeAfter(response);
+        return response;
     }
 
     /**
      * 处理流式请求/响应
      *
-     * @param advisedRequest
+     * @param request
      * @param chain
      * @return
      */
     @Override
-    public Flux<AdvisedResponse> aroundStream(AdvisedRequest advisedRequest, StreamAroundAdvisorChain chain) {
-        advisedRequest = this.before(advisedRequest);
+    public Flux<ChatClientResponse> adviseStream(ChatClientRequest request, StreamAdvisorChain chain) {
+        request = this.before(request);
         // 继续执行AdvisorChain中的下一个拦截器
-        Flux<AdvisedResponse> advisedResponses = chain.nextAroundStream(advisedRequest);
+        Flux<ChatClientResponse> response = chain.nextStream(request);
         // 创建消息聚合器实例MessageAggregator，将流式响应序列（Flux：包含多个响应片段）聚合成完整的响应之后，再回调observeAfter方法去记录完整的响应日志
-        return (new MessageAggregator()).aggregateAdvisedResponse(advisedResponses, this::observeAfter);
+        return new ChatClientMessageAggregator().aggregateChatClientResponse(response, this::observeAfter);
     }
 }

@@ -22,14 +22,15 @@
         <hutool.version>5.8.37</hutool.version>
         <knife4j.version>4.5.0</knife4j.version>
         <dashscope.version>2.22.17</dashscope.version>
-        <spring-ai-alibaba.version>1.0.0-M6.1</spring-ai-alibaba.version>
+        <spring-ai-alibaba-agent-framework.version>1.1.2.2</spring-ai-alibaba-agent-framework.version>
+        <spring-ai-alibaba-starter-dashscope.version>1.1.2.2</spring-ai-alibaba-starter-dashscope.version>
         <langchain4j.version>1.13.1-beta23</langchain4j.version>
         <spring-ai-ollama.version>1.0.0-M6</spring-ai-ollama.version>
         <jsonschema.version>4.38.0</jsonschema.version>
         <kryo.version>5.6.2</kryo.version>
         <sensitive-word.version>0.11.0</sensitive-word.version>
-        <document-reader.version>1.0.0-M6</document-reader.version>
-        <vector-store.version>1.0.0-M7</vector-store.version>
+        <spring-ai-markdown-document-reader.version>1.1.2</spring-ai-markdown-document-reader.version>
+        <spring-ai-advisors-vector-store.version>1.1.2</spring-ai-advisors-vector-store.version>
     </properties>
 
     <dependencies>
@@ -77,10 +78,18 @@
 <!--        </dependency>-->
 
         <!-- Spring AI Alibaba接入LLM -->
+        <!-- 1. Agent Framework（智能体框架） -->
         <dependency>
             <groupId>com.alibaba.cloud.ai</groupId>
-            <artifactId>spring-ai-alibaba-starter</artifactId>
-            <version>${spring-ai-alibaba.version}</version>
+            <artifactId>spring-ai-alibaba-agent-framework</artifactId>
+            <version>${spring-ai-alibaba-agent-framework.version}</version>
+        </dependency>
+
+        <!-- 2. DashScope Starter（通义千问模型支持） -->
+        <dependency>
+            <groupId>com.alibaba.cloud.ai</groupId>
+            <artifactId>spring-ai-alibaba-starter-dashscope</artifactId>
+            <version>${spring-ai-alibaba-starter-dashscope.version}</version>
         </dependency>
 
         <!-- langchain4j接入LLM -->
@@ -122,14 +131,14 @@
         <dependency>
             <groupId>org.springframework.ai</groupId>
             <artifactId>spring-ai-markdown-document-reader</artifactId>
-            <version>${document-reader.version}</version>
+            <version>${spring-ai-markdown-document-reader.version}</version>
         </dependency>
 
         <!-- 向量数据库 -->
         <dependency>
             <groupId>org.springframework.ai</groupId>
             <artifactId>spring-ai-advisors-vector-store</artifactId>
-            <version>${vector-store.version}</version>
+            <version>${spring-ai-advisors-vector-store.version}</version>
         </dependency>
     </dependencies>
 
@@ -171,6 +180,7 @@
         </plugins>
     </build>
 
+    <!--仓库-->
     <repositories>
         <!--阿里云仓库-->
         <repository>
@@ -181,13 +191,27 @@
         <repository>
             <id>spring-milestones</id>
             <name>Spring Milestones</name>
-            <url>https://maven.aliyun.com/repository/spring</url>
+            <url>https://repo.spring.io/milestone</url>
         </repository>
         <repository>
             <id>central</id>
-            <name>maven-central</name>
-            <url>http://central.maven.org/maven2/</url>
+            <name>Maven Central</name>
+            <url>https://repo.maven.apache.org/maven2/</url>
         </repository>
     </repositories>
 
+    <!--插件仓库-->
+    <pluginRepositories>
+        <!--阿里云插件仓库-->
+        <pluginRepository>
+            <id>aliyun-plugin</id>
+            <name>aliyun-maven-plugin</name>
+            <url>https://maven.aliyun.com/repository/public/</url>
+        </pluginRepository>
+        <pluginRepository>
+            <id>central-plugin</id>
+            <name>Maven Central Plugin</name>
+            <url>https://repo.maven.apache.org/maven2/</url>
+        </pluginRepository>
+    </pluginRepositories>
 </project>

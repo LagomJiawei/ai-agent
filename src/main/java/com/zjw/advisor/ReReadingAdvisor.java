@@ -1,11 +1,11 @@
 package com.zjw.advisor;
 
-import org.springframework.ai.chat.client.advisor.api.AdvisedRequest;
-import org.springframework.ai.chat.client.advisor.api.AdvisedResponse;
-import org.springframework.ai.chat.client.advisor.api.CallAroundAdvisor;
-import org.springframework.ai.chat.client.advisor.api.CallAroundAdvisorChain;
-import org.springframework.ai.chat.client.advisor.api.StreamAroundAdvisor;
-import org.springframework.ai.chat.client.advisor.api.StreamAroundAdvisorChain;
+import org.springframework.ai.chat.client.ChatClientRequest;
+import org.springframework.ai.chat.client.ChatClientResponse;
+import org.springframework.ai.chat.client.advisor.api.CallAdvisor;
+import org.springframework.ai.chat.client.advisor.api.CallAdvisorChain;
+import org.springframework.ai.chat.client.advisor.api.StreamAdvisor;
+import org.springframework.ai.chat.client.advisor.api.StreamAdvisorChain;
 import org.springframework.ai.chat.prompt.PromptTemplate;
 import reactor.core.publisher.Flux;
 
@@ -18,7 +18,7 @@ import java.util.Map;
  * @author ZhangJw
  * @date 2026年05月03日 14:03
  */
-public class ReReadingAdvisor implements CallAroundAdvisor, StreamAroundAdvisor {
+public class ReReadingAdvisor implements CallAdvisor, StreamAdvisor {
 
     /**
      * 拦截器名称（唯一）
@@ -43,10 +43,10 @@ public class ReReadingAdvisor implements CallAroundAdvisor, StreamAroundAdvisor 
     /**
      * 执行请求前，改写 Prompt
      *
-     * @param advisedRequest
+     * @param request
      * @return
      */
-    private AdvisedRequest before(AdvisedRequest advisedRequest) {
+    private ChatClientRequest before(ChatClientRequest request) {
         // 创建包含变量的prompt
         String template = """
                 {re2_input_query}
@@ -56,38 +56,37 @@ public class ReReadingAdvisor implements CallAroundAdvisor, StreamAroundAdvisor 
         // 构建PromptTemplate
         PromptTemplate promptTemplate = new PromptTemplate(template);
         Map<String, Object> variables = new HashMap<>();
-        variables.put("re2_input_query", advisedRequest.userText());
+        variables.put("re2_input_query", request.prompt().getUserMessage().getText());
 
         // 渲染模板
         String renderedText = promptTemplate.render(variables);
 
-        return AdvisedRequest.from(advisedRequest)
-                .userText(renderedText)
-                .userParams(variables)
+        return request.mutate()
+                .prompt(request.prompt().augmentUserMessage(renderedText))
                 .build();
     }
 
     /**
      * 处理同步（非流式）请求/响应
      *
-     * @param advisedRequest
+     * @param request
      * @param chain
      * @return
      */
     @Override
-    public AdvisedResponse aroundCall(AdvisedRequest advisedRequest, CallAroundAdvisorChain chain) {
-        return chain.nextAroundCall(this.before(advisedRequest));
+    public ChatClientResponse adviseCall(ChatClientRequest request, CallAdvisorChain chain) {
+        return chain.nextCall(this.before(request));
     }
 
     /**
      * 处理流式请求/响应
      *
-     * @param advisedRequest
+     * @param request
      * @param chain
      * @return
      */
     @Override
-    public Flux<AdvisedResponse> aroundStream(AdvisedRequest advisedRequest, StreamAroundAdvisorChain chain) {
-        return chain.nextAroundStream(this.before(advisedRequest));
+    public Flux<ChatClientResponse> adviseStream(ChatClientRequest request, StreamAdvisorChain chain) {
+        return chain.nextStream(this.before(request));
     }
 }
