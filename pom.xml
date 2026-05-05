@@ -28,6 +28,8 @@
         <jsonschema.version>4.38.0</jsonschema.version>
         <kryo.version>5.6.2</kryo.version>
         <sensitive-word.version>0.11.0</sensitive-word.version>
+        <document-reader.version>1.0.0-M6</document-reader.version>
+        <vector-store.version>1.0.0-M7</vector-store.version>
     </properties>
 
     <dependencies>
@@ -116,6 +118,19 @@
             <version>${sensitive-word.version}</version>
         </dependency>
 
+        <!-- markdown文档读取工具 -->
+        <dependency>
+            <groupId>org.springframework.ai</groupId>
+            <artifactId>spring-ai-markdown-document-reader</artifactId>
+            <version>${document-reader.version}</version>
+        </dependency>
+
+        <!-- 向量数据库 -->
+        <dependency>
+            <groupId>org.springframework.ai</groupId>
+            <artifactId>spring-ai-advisors-vector-store</artifactId>
+            <version>${vector-store.version}</version>
+        </dependency>
     </dependencies>
 
     <build>

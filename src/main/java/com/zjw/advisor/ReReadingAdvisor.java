@@ -6,9 +6,11 @@ import org.springframework.ai.chat.client.advisor.api.CallAroundAdvisor;
 import org.springframework.ai.chat.client.advisor.api.CallAroundAdvisorChain;
 import org.springframework.ai.chat.client.advisor.api.StreamAroundAdvisor;
 import org.springframework.ai.chat.client.advisor.api.StreamAroundAdvisorChain;
+import org.springframework.ai.chat.prompt.PromptTemplate;
 import reactor.core.publisher.Flux;
 
 import java.util.HashMap;
+import java.util.Map;
 
 /**
  * 自定义 Re2 Advisor
@@ -45,14 +47,23 @@ public class ReReadingAdvisor implements CallAroundAdvisor, StreamAroundAdvisor 
      * @return
      */
     private AdvisedRequest before(AdvisedRequest advisedRequest) {
-        HashMap<String, Object> advisedUserParams = new HashMap<>(advisedRequest.userParams());
-        advisedUserParams.put("re2_input_query", advisedRequest.userText());
+        // 创建包含变量的prompt
+        String template = """
+                {re2_input_query}
+                Read the question again: {re2_input_query}
+                """;
+
+        // 构建PromptTemplate
+        PromptTemplate promptTemplate = new PromptTemplate(template);
+        Map<String, Object> variables = new HashMap<>();
+        variables.put("re2_input_query", advisedRequest.userText());
+
+        // 渲染模板
+        String renderedText = promptTemplate.render(variables);
+
         return AdvisedRequest.from(advisedRequest)
-                .userText("""
-                        {re2_input_query}
-                        Read the question again: {re2_input_query}
-                        """)
-                .userParams(advisedUserParams)
+                .userText(renderedText)
+                .userParams(variables)
                 .build();
     }
 
