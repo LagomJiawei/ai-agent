@@ -134,6 +134,28 @@
             <version>${spring-ai-markdown-document-reader.version}</version>
         </dependency>
 
+        <!-- 语雀文档读取工具 -->
+        <dependency>
+            <groupId>com.alibaba.cloud.ai</groupId>
+            <artifactId>spring-ai-alibaba-starter-document-reader-yuque</artifactId>
+            <version>${spring-ai-alibaba-agent-framework.version}</version>
+        </dependency>
+
+        <!-- 飞书文档读取工具 -->
+        <dependency>
+            <groupId>com.alibaba.cloud.ai</groupId>
+            <artifactId>spring-ai-alibaba-starter-document-reader-larksuite</artifactId>
+            <version>${spring-ai-alibaba-agent-framework.version}</version>
+        </dependency>
+
+        <!-- 文档解析器（用于语雀文档解析） -->
+        <dependency>
+            <groupId>com.alibaba.cloud.ai</groupId>
+            <artifactId>spring-ai-alibaba-starter-document-parser-markdown</artifactId>
+            <version>${spring-ai-alibaba-agent-framework.version}</version>
+        </dependency>
+
+
         <!-- 向量数据库 -->
         <dependency>
             <groupId>org.springframework.ai</groupId>

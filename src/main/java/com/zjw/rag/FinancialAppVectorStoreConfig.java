@@ -22,13 +22,23 @@ public class FinancialAppVectorStoreConfig {
     @Resource
     private FinancialAppDocumentLoader financialAppDocumentLoader;
 
+    @Resource
+    private MyTokenTextSplitter myTokenTextSplitter;
+
+    @Resource
+    private MyKeywordEnricher myKeywordEnricher;
+
     @Bean
-    VectorStore financialAppVectorStore(EmbeddingModel embeddingModel) {
-        SimpleVectorStore simpleVectorStore = SimpleVectorStore.builder(embeddingModel)
+    VectorStore financialAppVectorStore(EmbeddingModel dashscopeEmbeddingModel) {
+        SimpleVectorStore simpleVectorStore = SimpleVectorStore.builder(dashscopeEmbeddingModel)
                 .build();
-        // 加载文档
+        // 加载文档（此时可以手动批量为文档添加元信息）
         List<Document> documents = financialAppDocumentLoader.loadMarkdowns();
-        simpleVectorStore.add(documents);
+        // 文档切分
+//        List<Document> splitDocuments = myTokenTextSplitter.splitDocuments(documents);
+        // 使用文档元信息增强器自动为文档添加元信息
+        List<Document> enrichedDocuments = myKeywordEnricher.enrichDocuments(documents);
+        simpleVectorStore.add(enrichedDocuments);
         return simpleVectorStore;
     }
 }

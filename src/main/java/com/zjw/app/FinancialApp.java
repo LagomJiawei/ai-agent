@@ -3,6 +3,9 @@ package com.zjw.app;
 import com.zjw.advisor.MyLoggerAdvisor;
 import com.zjw.advisor.SensitiveWordAdvisor;
 import com.zjw.chatMemory.FileBasedChatMemory;
+import com.zjw.rag.ApiTranslationQueryTransformer;
+import com.zjw.rag.FinancialAppRagAdvisorFactory;
+import com.zjw.rag.MyQueryRewriter;
 import jakarta.annotation.Resource;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.ai.chat.client.ChatClient;
@@ -12,6 +15,7 @@ import org.springframework.ai.chat.client.advisor.vectorstore.QuestionAnswerAdvi
 import org.springframework.ai.chat.memory.ChatMemory;
 import org.springframework.ai.chat.model.ChatModel;
 import org.springframework.ai.chat.model.ChatResponse;
+import org.springframework.ai.rag.Query;
 import org.springframework.ai.vectorstore.VectorStore;
 import org.springframework.stereotype.Component;
 
@@ -110,6 +114,12 @@ public class FinancialApp {
     @Resource
     private Advisor financialAppCloudAdvisor;
 
+    @Resource
+    private MyQueryRewriter queryRewriter;
+
+    @Resource
+    private ApiTranslationQueryTransformer translationQueryTransformer;
+
     /**
      * 使用 RAG 知识库 进行对话
      *
@@ -118,13 +128,21 @@ public class FinancialApp {
      * @return
      */
     public String doChatWithRag(String message, String chatId) {
+        // 1.先执行查询翻译（将非中文翻译成中文）
+        Query translatedQuery = translationQueryTransformer.transform(
+                new Query(message)
+        );
+        String translatedMessage = translatedQuery.text();
+
+        // 2.执行查询重写（优化查询表达）
+        String rewrittenMessage = queryRewriter.doQueryRewrite(translatedMessage);
         ChatResponse chatResponse = chatClient
                 .prompt()
-                .user(message)
+                .user(rewrittenMessage) // 使用查询重写后的查询
+                .advisors(FinancialAppRagAdvisorFactory.createRagAdvisor(financialAppVectorStore, "轻度"))
                 .advisors(spec -> spec.param("chat_memory_conversation_id", chatId)
                         .param("chat_memory_retrieve_size", 10))
-                // 开启日志
-                .advisors(new MyLoggerAdvisor())
+                .advisors(new MyLoggerAdvisor()) // 开启日志
                 // 类型1：开启QuestionAnswerAdvisor 这种 RAG 知识库（更简单）
                 .advisors(QuestionAnswerAdvisor.builder(financialAppVectorStore).build())
                 // 类型2：开启 RetrievalAugmentationAdvisor 这种 RAG 知识库（更灵活）
@@ -135,4 +153,7 @@ public class FinancialApp {
         log.info("content: {}", content);
         return content;
     }
+
+
+
 }
