@@ -1,4 +1,4 @@
-package com.zjw.config;
+package com.zjw.config.sensitiveWord;
 
 import lombok.Data;
 import org.springframework.boot.context.properties.ConfigurationProperties;

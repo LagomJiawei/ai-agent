@@ -62,13 +62,33 @@ public class FinancialAppTest {
     }
 
     /**
-     * 测试 rag
+     * 测试工具调用
      */
     @Test
-    void testChatWithRag() {
+    void testChatWithTools() {
+        // 测试联网搜索问题的答案
+        this.testMessage("周末想去上海，推荐几个小众打卡地？");
+
+        // 测试网页抓取：理财案例分析
+        this.testMessage("最近亏了，看看https://www.xxx.com上其他人是怎么解决的？");
+
+        // 测试资源下载：图片下载
+        this.testMessage("直接下载一张适合做手机壁纸的图片为文件");
+
+        // 测试终端操作：执行代码
+        this.testMessage("执行 Python3 脚本来生成分析报告");
+
+        // 测试文件操作：保存用户档案
+        this.testMessage("保存我的理财档案为文件");
+
+        // 测试 PDF 生成
+        this.testMessage("生成一份‘理财计划’PDF");
+    }
+
+    private void testMessage(String message) {
         String chatId = UUID.randomUUID().toString();
-        String message = "你好，我想理财，但是不了解这块内容。";
-        String answer = financialApp.doChatWithRag(message, chatId);
+        String answer = financialApp.doChatWithTools(message, chatId);
         Assertions.assertNotNull(answer);
     }
+
 }

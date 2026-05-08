@@ -6,6 +6,7 @@ import com.zjw.chatMemory.FileBasedChatMemory;
 import com.zjw.rag.ApiTranslationQueryTransformer;
 import com.zjw.rag.FinancialAppRagAdvisorFactory;
 import com.zjw.rag.MyQueryRewriter;
+import com.zjw.service.ManualToolExecutionService;
 import jakarta.annotation.Resource;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.ai.chat.client.ChatClient;
@@ -16,6 +17,7 @@ import org.springframework.ai.chat.memory.ChatMemory;
 import org.springframework.ai.chat.model.ChatModel;
 import org.springframework.ai.chat.model.ChatResponse;
 import org.springframework.ai.rag.Query;
+import org.springframework.ai.tool.ToolCallback;
 import org.springframework.ai.vectorstore.VectorStore;
 import org.springframework.stereotype.Component;
 
@@ -155,5 +157,66 @@ public class FinancialApp {
     }
 
 
+    @Resource
+    private ToolCallback[] allTools;
 
+    public String doChatWithTools(String message, String chatId) {
+        ChatResponse response = chatClient
+                .prompt()
+                .user(message)
+                .advisors(spec -> spec.param("chat_memory_conversation_id", chatId)
+                        .param("chat_memory_retrieve_size", 10))
+                // 开启日志，便于观察效果
+                .advisors(new MyLoggerAdvisor())
+                .tools(allTools)
+                .call()
+                .chatResponse();
+        String content = response.getResult().getOutput().getText();
+        log.info("content: {}", content);
+        return content;
+    }
+
+
+    @Resource
+    private ManualToolExecutionService manualToolExecutionService;
+
+    /**
+     * 使用手动控制的工具执行进行对话（提高可观测性）
+     * 适用于需要详细监控工具调用流程、添加自定义逻辑（如审批、过滤、审计）的场景
+     *
+     * @param message 用户消息
+     * @param chatId  对话ID
+     * @return AI回复
+     */
+    public String doChatWithManualToolControl(String message, String chatId) {
+        log.info("🎯 Using manual tool execution control for chatId: {}", chatId);
+
+        // 默认最大迭代次数为5，防止无限循环
+        int maxIterations = 5;
+
+        return manualToolExecutionService.executeWithManualToolControl(
+                message,
+                allTools,
+                maxIterations
+        );
+    }
+
+    /**
+     * 使用手动控制的工具执行进行对话（自定义最大迭代次数）
+     *
+     * @param message       用户消息
+     * @param chatId        对话ID
+     * @param maxIterations 最大迭代次数
+     * @return AI回复
+     */
+    public String doChatWithManualToolControl(String message, String chatId, int maxIterations) {
+        log.info("🎯 Using manual tool execution control for chatId: {} with maxIterations: {}",
+                chatId, maxIterations);
+
+        return manualToolExecutionService.executeWithManualToolControl(
+                message,
+                allTools,
+                maxIterations
+        );
+    }
 }

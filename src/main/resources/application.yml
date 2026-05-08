@@ -4,7 +4,7 @@ spring:
   ai:
     # 阿里云-灵积模型服务 （与阿里云百炼的区别：必须通过底层编程去调用LLM）
     dashScope:
-      api-key: sk-db5a0ff74d884406ae4ef483efc60341
+      api-key: 
       chat:
         options:
           model: qwen-plus
@@ -19,15 +19,15 @@ spring:
         yuque:
           # 语雀 Token，从 https://www.yuque.com/settings/tokens 获取
           # 注意：生产环境请使用环境变量 YUQUE_TOKEN 配置
-          token: sadasd
+          token: xxx
         larksuite:
           # 飞书应用 App ID，从飞书开放平台获取
           # 路径：https://open.feishu.cn/ → 创建企业自建应用 → 凭证与基础信息
           # 注意：生产环境请使用环境变量 FEISHU_APP_ID 配置
-          app-id: asda
+          app-id: xxx
           # 飞书应用 App Secret，从飞书开放平台获取
           # 注意：生产环境请使用环境变量 FEISHU_APP_SECRET 配置
-          app-secret: asda
+          app-secret: xxx
 server:
   port: 8123
   servlet:
@@ -81,14 +81,33 @@ translation:
   target-language: zh
   # 百度翻译配置
   baidu:
-    app-id:
-    app-key:
+    app-id: xxx
+    app-key: xxx
   # 有道翻译配置
   youdao:
-    app-key:
-    app-secret:
+    app-key: xxx
+    app-secret: xxx
   # DeepL配置
   deepl:
-    api-key:
+    api-key: xxx
     # deepL API端点（免费版: api-free.deepl.com, 专业版: api.deepl.com）
-    endpoint:
+    endpoint: xxx
+
+
+# searchApi
+search-api:
+  api-key: xxx
+
+# 阿里云OSS配置
+oss:
+  aliyun:
+    # OSS Endpoint（地域节点），如：oss-cn-hangzhou.aliyuncs.com
+    endpoint: oss-cn-hangzhou.aliyuncs.com
+    # AccessKey ID
+    access-key-id: xxx
+    # AccessKey Secret
+    access-key-secret: xxx
+    # Bucket名称
+    bucket-name: xxx
+    # PDF文件存储路径前缀
+    pdf-path-prefix: pdf-files

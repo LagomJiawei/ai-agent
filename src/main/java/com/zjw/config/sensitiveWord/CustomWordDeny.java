@@ -1,4 +1,4 @@
-package com.zjw.config;
+package com.zjw.config.sensitiveWord;
 
 import com.github.houbb.sensitive.word.api.IWordDeny;
 import jakarta.annotation.Resource;

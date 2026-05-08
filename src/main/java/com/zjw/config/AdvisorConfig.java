@@ -1,6 +1,8 @@
 package com.zjw.config;
 
 import com.zjw.advisor.SensitiveWordAdvisor;
+import com.zjw.config.sensitiveWord.CustomWordDeny;
+import com.zjw.config.sensitiveWord.SensitiveWordConfig;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
