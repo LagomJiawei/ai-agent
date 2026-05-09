@@ -5,6 +5,7 @@ import com.zjw.common.BaseResponse;
 import com.zjw.common.ResultUtils;
 import jakarta.annotation.Resource;
 import lombok.Data;
+import lombok.EqualsAndHashCode;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -79,6 +80,7 @@ public class FinancialController {
         private String chatId = "default-chat";
     }
 
+    @EqualsAndHashCode(callSuper = true)
     @Data
     public static class ChatRequestWithIterations extends ChatRequest {
         private int maxIterations = 5;

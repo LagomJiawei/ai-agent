@@ -4,10 +4,55 @@ spring:
   ai:
     # 阿里云-灵积模型服务 （与阿里云百炼的区别：必须通过底层编程去调用LLM）
     dashScope:
-      api-key: 
+      api-key:
       chat:
         options:
           model: qwen-plus
+    # 配置 MCP
+    mcp:
+      # 客户端
+      client:
+        enabled: true
+        name: my-mcp-client
+        version: 1.0.0
+        request-timeout: 30s
+        type: SYNC
+        sse:
+          connections:
+            server1:
+              url: http://localhost:8080
+        stdio:
+          connections:
+            server1:
+              command: /path/to/server
+              args:
+                - --port=8080
+              env:
+                API_KEY: XXX
+      # 服务端
+      server:
+        # stdio传输
+        name: my-stdio-mcp-server
+        version: 1.0.0
+        type: SYNC
+        stdio: true
+#        # 基于SpringMVC的SSE传输
+#        name: my-mvc-mcp-server
+#        version: 1.0.0
+#        type: SYNC                          # 同步传输
+#        sse-message-endpoint: /mcp/message  # SSE消息端点路径
+#        sse-chat-endpoint: /mcp             # SSE端点路径
+
+#        # 基于SpringWebFlux的SSE传输
+#        name: my-webflux-mcp-server
+#        version: 1.0.0
+#        type: ASYNC                         # 异步传输
+#        sse-message-endpoint: /mcp/message  # SSE消息端点路径
+#        sse-chat-endpoint: /mcp             # SSE端点路径
+
+#          servers-configuration: classpath:mcp-servers.json
+
+
 #    ollama:
 #      base-url: http://localhost:11434
 #      chat:

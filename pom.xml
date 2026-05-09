@@ -22,15 +22,13 @@
         <hutool.version>5.8.37</hutool.version>
         <knife4j.version>4.5.0</knife4j.version>
         <dashscope.version>2.22.17</dashscope.version>
-        <spring-ai-alibaba-agent-framework.version>1.1.2.2</spring-ai-alibaba-agent-framework.version>
-        <spring-ai-alibaba-starter-dashscope.version>1.1.2.2</spring-ai-alibaba-starter-dashscope.version>
+        <spring-ai.version>1.1.2</spring-ai.version>
+        <spring-ai-alibaba.version>1.1.2.2</spring-ai-alibaba.version>
         <langchain4j.version>1.13.1-beta23</langchain4j.version>
         <spring-ai-ollama.version>1.0.0-M6</spring-ai-ollama.version>
         <jsonschema.version>4.38.0</jsonschema.version>
         <kryo.version>5.6.2</kryo.version>
         <sensitive-word.version>0.11.0</sensitive-word.version>
-        <spring-ai-markdown-document-reader.version>1.1.2</spring-ai-markdown-document-reader.version>
-        <spring-ai-advisors-vector-store.version>1.1.2</spring-ai-advisors-vector-store.version>
         <jsoup.version>1.19.1</jsoup.version>
         <itext-core.version>9.1.0</itext-core.version>
         <aliyun-oss.version>3.17.4</aliyun-oss.version>
@@ -85,14 +83,14 @@
         <dependency>
             <groupId>com.alibaba.cloud.ai</groupId>
             <artifactId>spring-ai-alibaba-agent-framework</artifactId>
-            <version>${spring-ai-alibaba-agent-framework.version}</version>
+            <version>${spring-ai-alibaba.version}</version>
         </dependency>
 
         <!-- 2. DashScope Starter（通义千问模型支持） -->
         <dependency>
             <groupId>com.alibaba.cloud.ai</groupId>
             <artifactId>spring-ai-alibaba-starter-dashscope</artifactId>
-            <version>${spring-ai-alibaba-starter-dashscope.version}</version>
+            <version>${spring-ai-alibaba.version}</version>
         </dependency>
 
         <!-- langchain4j接入LLM -->
@@ -134,35 +132,33 @@
         <dependency>
             <groupId>org.springframework.ai</groupId>
             <artifactId>spring-ai-markdown-document-reader</artifactId>
-            <version>${spring-ai-markdown-document-reader.version}</version>
         </dependency>
 
         <!-- 语雀文档读取工具 -->
         <dependency>
             <groupId>com.alibaba.cloud.ai</groupId>
             <artifactId>spring-ai-alibaba-starter-document-reader-yuque</artifactId>
-            <version>${spring-ai-alibaba-agent-framework.version}</version>
+            <version>${spring-ai-alibaba.version}</version>
         </dependency>
 
         <!-- 飞书文档读取工具 -->
         <dependency>
             <groupId>com.alibaba.cloud.ai</groupId>
             <artifactId>spring-ai-alibaba-starter-document-reader-larksuite</artifactId>
-            <version>${spring-ai-alibaba-agent-framework.version}</version>
+            <version>${spring-ai-alibaba.version}</version>
         </dependency>
 
         <!-- 文档解析器（用于语雀文档解析） -->
         <dependency>
             <groupId>com.alibaba.cloud.ai</groupId>
             <artifactId>spring-ai-alibaba-starter-document-parser-markdown</artifactId>
-            <version>${spring-ai-alibaba-agent-framework.version}</version>
+            <version>${spring-ai-alibaba.version}</version>
         </dependency>
 
         <!-- 向量数据库 -->
         <dependency>
             <groupId>org.springframework.ai</groupId>
             <artifactId>spring-ai-advisors-vector-store</artifactId>
-            <version>${spring-ai-advisors-vector-store.version}</version>
         </dependency>
 
         <!-- 网页内容抓取和解析 -->
@@ -194,7 +190,39 @@
             <version>${aliyun-oss.version}</version>
         </dependency>
 
+        <!-- 添加 MCP 客户端SDK -->
+        <dependency>
+            <groupId>org.springframework.ai</groupId>
+            <artifactId>spring-ai-starter-mcp-client</artifactId>
+        </dependency>
+
+        <!-- 添加 MCP 服务端SDK -->
+        <dependency>
+            <groupId>org.springframework.ai</groupId>
+            <artifactId>spring-ai-starter-mcp-server-webmvc</artifactId>
+        </dependency>
     </dependencies>
+
+    <!-- 引入Spring AI BOM依赖 和 Spring AI Alibaba BOM依赖：统一管理两个框架的版本 -->
+    <dependencyManagement>
+        <dependencies>
+            <dependency>
+                <groupId>org.springframework.ai</groupId>
+                <artifactId>spring-ai-bom</artifactId>
+                <version>${spring-ai.version}</version>
+                <type>pom</type>
+                <scope>import</scope>
+            </dependency>
+
+            <dependency>
+                <groupId>com.alibaba.cloud.ai</groupId>
+                <artifactId>spring-ai-alibaba-bom</artifactId>
+                <version>${spring-ai-alibaba.version}</version>
+                <type>pom</type>
+                <scope>import</scope>
+            </dependency>
+        </dependencies>
+    </dependencyManagement>
 
     <build>
         <plugins>
