@@ -12,7 +12,7 @@
     <groupId>com.zjw</groupId>
     <artifactId>ai-agent</artifactId>
     <packaging>jar</packaging>
-    <version>1.0</version>
+    <version>0.0.1-SNAPSHOT</version>
     <name>ai-agent</name>
     <description>ai-agent</description>
 
@@ -190,13 +190,13 @@
             <version>${aliyun-oss.version}</version>
         </dependency>
 
-        <!-- 添加 MCP 客户端SDK -->
+        <!-- 开发MCP客户端：添加 MCP 客户端SDK -->
         <dependency>
             <groupId>org.springframework.ai</groupId>
             <artifactId>spring-ai-starter-mcp-client</artifactId>
         </dependency>
 
-        <!-- 添加 MCP 服务端SDK -->
+        <!-- 开发MCP服务端：添加 MCP 服务端SDK -->
         <dependency>
             <groupId>org.springframework.ai</groupId>
             <artifactId>spring-ai-starter-mcp-server-webmvc</artifactId>

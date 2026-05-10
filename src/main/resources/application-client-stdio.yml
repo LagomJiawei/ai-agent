@@ -1,0 +1,12 @@
+spring:
+  ai:
+    mcp:
+      # STDIO 模式：MCP 服务作为客户端的子进程运行，无需网络传输。安全性和性能都更高。适用场景：小型项目
+      client:
+        enabled: true
+        name: my-mcp-client
+        version: 1.0.0
+        request-timeout: 30s
+        type: SYNC
+        stdio:
+          servers-configuration: classpath:mcp-servers.json

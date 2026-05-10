@@ -1,0 +1,14 @@
+spring:
+  ai:
+    mcp:
+      # SSE 模式：MCP 服务作为独立进程运行在端口 8127，主应用通过 HTTP SSE 连接。适合作为独立服务部署，被多客户端共享。适用场景：中大型项目
+      client:
+        enabled: true
+        name: my-mcp-client
+        version: 1.0.0
+        request-timeout: 30s
+        type: SYNC
+        sse:
+          connections:
+            server1:
+              url: http://localhost:8127

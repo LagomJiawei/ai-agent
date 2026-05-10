@@ -225,22 +225,22 @@ public class FinancialApp {
      * 引入 spring-ai-starter-mcp-client 后，Spring Boot 会自动执行以下步骤：
      * 步骤 1：读取配置文件
      *      Spring AI 的自动配置类会读取 application.yml 中的 MCP 配置，找到 mcp-servers.json 文件。
-     * 步骤 2：启动 MCP Server 进程
-     *      对于每个配置的 MCP 服务器（如 amap-maps），Spring AI 会：
+     * 步骤 2：启动 MCP Server 子进程
+     *      对于配置的每个 MCP 服务器（如 amap-maps），Spring AI 会：
      *          使用 ProcessBuilder 启动子进程（执行 npx.cmd -y @amap/amap-maps-mcp-server）
      *          通过 stdio（标准输入/输出） 与子进程通信
      *          遵循 MCP 协议（Model Context Protocol）进行握手和工具发现
      * 步骤 3：发现工具列表
      *      MCP Server 启动后，会通过 JSON-RPC 协议返回它提供的所有工具定义，包括：
-     *          工具名称（如 geocode_address）
+     *          工具名称
      *          工具描述
-     *          参数 schema（JSON Schema 格式）
+     *          参数 （JSON Schema 格式）
      * 步骤 4：创建 ToolCallback 对象
-     *     Spring AI 会为每个发现的工具创建一个 ToolCallback 对象，这个对象封装了：
+     *     Spring AI 会为每个工具创建一个 ToolCallback 对象，这个对象封装了：
      *          工具的元数据（名称、描述、参数）
      *          调用逻辑（通过 stdio 向 MCP Server 发送请求）
      * 步骤 5：注册 ToolCallbackProvider Bean
-     *      Spring AI 自动创建一个 ToolCallbackProvider Bean，它的作用是：
+     *      Spring AI 自动创建一个 ToolCallbackProvider Bean，作用是：
      *          聚合从 MCP Server 发现的所有工具
      *          提供 getToolCallbacks() 方法返回 ToolCallback[] 数组
      */
@@ -264,7 +264,7 @@ public class FinancialApp {
                 // 通过 ToolCallbackProvider 获取到 mcp-servers.json 配置中定义的 MCP 服务提供的所有工具
                 /**
                  * 执行到 .tools(toolCallbackProvider) 时：
-                 * Spring AI 会调用 toolCallbackProvider.getToolCallbacks() 获取所有工具
+                 * Spring AI 会调用 toolCallbackProvider.getToolCallbacks() 获取 ToolCallbackProvider 中已添加的工具
                  * 这些工具会被注册到 ChatClient 的工具调用管理器中
                  * LLM 在生成回复时，可以根据需要选择调用这些工具
                  * 当 LLM 决定调用某个工具时会告知 Spring AI ，Spring AI 会通过 stdio 协议向对应的 MCP Server 发送请求
