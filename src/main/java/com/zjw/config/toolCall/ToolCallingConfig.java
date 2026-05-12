@@ -2,11 +2,13 @@ package com.zjw.config.toolCall;
 
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.ai.model.tool.ToolCallingManager;
+import org.springframework.ai.tool.execution.ToolExecutionException;
 import org.springframework.ai.tool.execution.ToolExecutionExceptionProcessor;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
 import java.io.IOException;
+import java.util.concurrent.TimeoutException;
 
 /**
  * 工具调用管理器配置
@@ -41,7 +43,10 @@ public class ToolCallingConfig {
 
     /**
      * 自定义工具执行异常处理器
-     * 提供更详细的错误日志和异常处理逻辑
+     * 提供统一的异常处理逻辑，包括：
+     * - 详细的错误日志记录
+     * - 根据异常类型返回不同的错误消息
+     * - 对模型友好的错误提示
      *
      * @return 异常处理器
      */
@@ -50,24 +55,40 @@ public class ToolCallingConfig {
         return exception -> {
             String toolName = exception.getToolDefinition().name();
             Throwable cause = exception.getCause();
+            String errorMessage = cause != null ? cause.getMessage() : exception.getMessage();
 
-            log.error("❌ Tool execution failed - Tool: {}, Error: {}",
-                    toolName,
-                    cause != null ? cause.getMessage() : exception.getMessage(),
-                    exception);
+            // 记录详细错误日志
+            log.error("❌ Tool execution failed - Tool: '{}', Error: {}", toolName, errorMessage, exception);
 
             // 根据异常类型决定处理策略
-            if (cause instanceof IOException) {
-                // 网络/IO错误返回友好消息给模型
-                return "无法访问外部资源，请尝试其他方法。";
-            } else if (cause instanceof SecurityException) {
-                // 安全异常直接抛出
-                throw exception;
-            } else {
-                // 其他异常返回详细信息给模型
-                return String.format("工具 '%s' 执行失败: %s",
-                        toolName,
-                        cause != null ? cause.getMessage() : exception.getMessage());
+            switch (cause) {
+                case IOException ioException -> {
+                    log.warn("⚠️  IO/Network error in tool '{}': {}", toolName, errorMessage);
+                    return String.format("工具 '%s' 无法访问外部资源，可能是网络问题或资源不可用。建议：检查网络连接或尝试其他方法。", toolName);
+                }
+                case SecurityException securityException -> {
+                    log.error("🔒 Security violation in tool '{}': {}", toolName, errorMessage);
+                    throw new ToolExecutionException(
+                            exception.getToolDefinition(),
+                            new SecurityException("工具执行被安全策略阻止：" + errorMessage)
+                    );
+                }
+                case TimeoutException timeoutException -> {
+                    log.warn("⏱️  Timeout in tool '{}': {}", toolName, errorMessage);
+                    return String.format("工具 '%s' 执行超时，操作耗时过长。建议：简化请求或稍后重试。", toolName);
+                }
+                case IllegalArgumentException illegalArgumentException -> {
+                    log.warn("⚠️  Invalid arguments for tool '{}': {}", toolName, errorMessage);
+                    return String.format("工具 '%s' 收到无效参数：%s。请检查参数格式和取值范围。", toolName, errorMessage);
+                }
+                case null, default -> {
+                    log.error("💥 Unexpected error in tool '{}': {}", toolName, errorMessage);
+                    return String.format("工具 '%s' 执行失败：%s。详细信息已记录，请联系管理员或尝试其他方法。",
+                            toolName,
+                            errorMessage != null && errorMessage.length() > 200
+                                    ? errorMessage.substring(0, 200) + "..."
+                                    : errorMessage);
+                }
             }
         };
     }

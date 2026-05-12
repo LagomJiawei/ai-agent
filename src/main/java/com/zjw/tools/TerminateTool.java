@@ -3,7 +3,7 @@ package com.zjw.tools;
 import org.springframework.ai.tool.annotation.Tool;
 
 /**
- * 停止调用工具：让智能体能够合理地中断工具调用链，避免无限循环
+ * 停止调用工具：让具备自主规划能力的智能体能够合理地中断工具调用链，避免无限循环
  *
  * @author ZhangJw
  * @date 2026年05月08日 9:23

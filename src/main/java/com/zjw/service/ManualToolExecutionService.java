@@ -32,32 +32,34 @@ public class ManualToolExecutionService {
 
     private final ChatModel chatModel;
     private final ToolCallingManager toolCallingManager;
+    private final ToolCallback[] providedTools;
 
-    public ManualToolExecutionService(ChatModel chatModel, ToolCallingManager toolCallingManager) {
-        this.chatModel = chatModel;
+    public ManualToolExecutionService(ChatModel dashScopeChatModel, ToolCallingManager toolCallingManager, ToolCallback[] allTools) {
+        this.chatModel = dashScopeChatModel;
         this.toolCallingManager = toolCallingManager;
+        this.providedTools = allTools;
     }
 
     /**
      * 使用手动控制的工具执行进行对话
      *
      * @param message 用户消息
-     * @param tools 可用的工具列表
+     * @param providedTools 可用的工具列表
      * @param maxIterations 最大迭代次数（防止无限循环）
      * @return 最终响应
      */
-    public String executeWithManualToolControl(String message, ToolCallback[] tools, int maxIterations) {
+    public String executeWithManualToolControl(String message, ToolCallback[] providedTools, int maxIterations) {
         long startTime = System.currentTimeMillis();
         int iteration = 0;
 
         log.info("🚀 Starting manual tool execution for message: {}", message);
-        log.info("🔧 Available tools: {}", Arrays.stream(tools)
+        log.info("🔧 Available tools: {}", Arrays.stream(providedTools)
                 .map(tool -> tool.getToolDefinition().name())
                 .collect(Collectors.joining(", ")));
 
         // 配置聊天选项，禁用内部工具自动执行
         ToolCallingChatOptions chatOptions = ToolCallingChatOptions.builder()
-                .toolCallbacks(tools)
+                .toolCallbacks(providedTools)
                 .internalToolExecutionEnabled(false) // 关键：禁用自动执行
                 .build();
 
