@@ -21,6 +21,7 @@ import org.springframework.ai.tool.ToolCallback;
 import org.springframework.ai.tool.ToolCallbackProvider;
 import org.springframework.ai.vectorstore.VectorStore;
 import org.springframework.stereotype.Component;
+import reactor.core.publisher.Flux;
 
 import java.util.List;
 
@@ -159,7 +160,7 @@ public class FinancialApp {
 
 
     @Resource
-    private ToolCallback[] allTools;
+    private List<ToolCallback> allTools;
 
     public String doChatWithTools(String message, String chatId) {
         ChatResponse response = chatClient
@@ -278,4 +279,22 @@ public class FinancialApp {
         log.info("content: {}", content);
         return content;
     }
+
+    /**
+     * 流式输出
+     *
+     * @param message 用户消息
+     * @param chatId  对话ID
+     * @return AI回复的文本信息
+     */
+    public Flux<String> doChatByStream(String message, String chatId) {
+        return chatClient
+                .prompt()
+                .user(message)
+                .advisors(spec -> spec.param("chat_memory_conversation_id", chatId)
+                        .param("chat_memory_retrieve_size", 10))
+                .stream()
+                .content();
+    }
+
 }

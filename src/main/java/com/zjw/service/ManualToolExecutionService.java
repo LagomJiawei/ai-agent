@@ -1,5 +1,6 @@
 package com.zjw.service;
 
+import com.alibaba.cloud.ai.dashscope.chat.DashScopeChatOptions;
 import com.zjw.advisor.ToolExecutionLoggerAdvisor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.ai.chat.model.ChatModel;
@@ -11,7 +12,6 @@ import org.springframework.ai.model.tool.ToolExecutionResult;
 import org.springframework.ai.tool.ToolCallback;
 import org.springframework.stereotype.Service;
 
-import java.util.Arrays;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -32,9 +32,9 @@ public class ManualToolExecutionService {
 
     private final ChatModel chatModel;
     private final ToolCallingManager toolCallingManager;
-    private final ToolCallback[] providedTools;
+    private final List<ToolCallback> providedTools;
 
-    public ManualToolExecutionService(ChatModel dashScopeChatModel, ToolCallingManager toolCallingManager, ToolCallback[] allTools) {
+    public ManualToolExecutionService(ChatModel dashScopeChatModel, ToolCallingManager toolCallingManager, List<ToolCallback> allTools) {
         this.chatModel = dashScopeChatModel;
         this.toolCallingManager = toolCallingManager;
         this.providedTools = allTools;
@@ -48,17 +48,17 @@ public class ManualToolExecutionService {
      * @param maxIterations 最大迭代次数（防止无限循环）
      * @return 最终响应
      */
-    public String executeWithManualToolControl(String message, ToolCallback[] providedTools, int maxIterations) {
+    public String executeWithManualToolControl(String message, List<ToolCallback> providedTools, int maxIterations) {
         long startTime = System.currentTimeMillis();
         int iteration = 0;
 
         log.info("🚀 Starting manual tool execution for message: {}", message);
-        log.info("🔧 Available tools: {}", Arrays.stream(providedTools)
+        log.info("🔧 Available tools: {}", providedTools.stream()
                 .map(tool -> tool.getToolDefinition().name())
                 .collect(Collectors.joining(", ")));
 
         // 配置聊天选项，禁用内部工具自动执行
-        ToolCallingChatOptions chatOptions = ToolCallingChatOptions.builder()
+        ToolCallingChatOptions chatOptions = DashScopeChatOptions.builder()
                 .toolCallbacks(providedTools)
                 .internalToolExecutionEnabled(false) // 关键：禁用自动执行
                 .build();
@@ -117,19 +117,19 @@ public class ManualToolExecutionService {
      * 使用手动控制的工具执行进行对话（带对话历史）
      *
      * @param prompt 包含历史的提示
-     * @param tools 可用的工具列表
+     * @param providedTools 可用的工具列表
      * @param maxIterations 最大迭代次数
      * @return 最终响应
      */
-    public String executeWithManualToolControl(Prompt prompt, ToolCallback[] tools, int maxIterations) {
+    public String executeWithManualToolControl(Prompt prompt, List<ToolCallback> providedTools, int maxIterations) {
         long startTime = System.currentTimeMillis();
         int iteration = 0;
 
         log.info("🚀 Starting manual tool execution with existing conversation history");
 
         // 更新聊天选项，禁用内部工具自动执行
-        ToolCallingChatOptions chatOptions = ToolCallingChatOptions.builder()
-                .toolCallbacks(tools)
+        ToolCallingChatOptions chatOptions = DashScopeChatOptions.builder()
+                .toolCallbacks(providedTools)
                 .internalToolExecutionEnabled(false)
                 .build();
 

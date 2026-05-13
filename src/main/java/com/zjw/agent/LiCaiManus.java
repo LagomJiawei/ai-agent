@@ -7,8 +7,10 @@ import org.springframework.ai.model.tool.ToolCallingManager;
 import org.springframework.ai.tool.ToolCallback;
 import org.springframework.stereotype.Component;
 
+import java.util.List;
+
 /**
- * AI 超级智能体（拥有自主规划能力，可以直接使用）
+ * 智能体（拥有自主规划能力，可以直接使用）
  *
  * 【注意】AI有随机性，执行步骤数不固定，完成复杂任务比较浪费token，按需使用即可。
  *
@@ -18,7 +20,7 @@ import org.springframework.stereotype.Component;
 @Component
 public class LiCaiManus extends ToolCallAgent {
 
-    public LiCaiManus(ToolCallback[] allTools, ChatModel dashscopeChatModel, ToolCallingManager toolCallingManager) {
+    public LiCaiManus(List<ToolCallback> allTools, ChatModel dashscopeChatModel, ToolCallingManager toolCallingManager) {
         super(allTools, toolCallingManager);
         this.setName("LiCaiManus");
         String SYSTEM_PROMPT = """

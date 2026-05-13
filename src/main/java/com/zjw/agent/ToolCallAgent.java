@@ -2,6 +2,7 @@ package com.zjw.agent;
 
 import cn.hutool.core.collection.CollUtil;
 import cn.hutool.core.util.StrUtil;
+import com.alibaba.cloud.ai.dashscope.chat.DashScopeChatOptions;
 import com.zjw.agent.model.AgentState;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
@@ -13,7 +14,6 @@ import org.springframework.ai.chat.messages.UserMessage;
 import org.springframework.ai.chat.model.ChatResponse;
 import org.springframework.ai.chat.prompt.ChatOptions;
 import org.springframework.ai.chat.prompt.Prompt;
-import org.springframework.ai.model.tool.ToolCallingChatOptions;
 import org.springframework.ai.model.tool.ToolCallingManager;
 import org.springframework.ai.model.tool.ToolExecutionResult;
 import org.springframework.ai.tool.ToolCallback;
@@ -33,7 +33,7 @@ import java.util.stream.Collectors;
 public class ToolCallAgent extends ReActAgent {
 
     // 可用的工具
-    private final ToolCallback[] availableTools;
+    private final List<ToolCallback> availableTools;
 
     // 保存工具调用信息的响应结果（要调用哪些工具）
     private ChatResponse toolCallChatResponse;
@@ -44,12 +44,12 @@ public class ToolCallAgent extends ReActAgent {
     // 禁用 Spring AI 内置的工具调用机制，自己维护选项和消息上下文
     private final ChatOptions chatOptions;
 
-    public ToolCallAgent(ToolCallback[] availableTools, ToolCallingManager toolCallingManager) {
+    public ToolCallAgent(List<ToolCallback> availableTools, ToolCallingManager toolCallingManager) {
         super();
         this.availableTools = availableTools;
         this.toolCallingManager = toolCallingManager;
         // 禁用 Spring AI 内置的自动工具调用机制，改为手动调用。自己维护选项和消息上下文
-        this.chatOptions = ToolCallingChatOptions.builder()
+        this.chatOptions = DashScopeChatOptions.builder()
                 .internalToolExecutionEnabled(false)
                 .build();
     }

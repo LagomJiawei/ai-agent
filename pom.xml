@@ -86,7 +86,12 @@
             <version>${spring-ai-alibaba.version}</version>
         </dependency>
 
-        <!-- 2. DashScope Starter（通义千问模型支持） -->
+        <!-- 2. DashScope Starter（通义千问模型支持）
+        自动配置机制：
+            引入 spring-ai-alibaba-starter-dashscope 后
+            Spring Boot 会自动创建一个类型为 ChatModel 的 Bean
+            这个 Bean 的实现就是 DashScopeChatModel，但对外暴露的是 ChatModel 接口
+        -->
         <dependency>
             <groupId>com.alibaba.cloud.ai</groupId>
             <artifactId>spring-ai-alibaba-starter-dashscope</artifactId>
